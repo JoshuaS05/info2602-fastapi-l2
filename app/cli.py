@@ -20,29 +20,54 @@ def initialize():
 
 @cli.command()
 def get_user(username:str):
-    # The code for task 5.1 goes here. Once implemented, remove the line below that says "pass"
-    pass
+    with get_session() as db:
+        user = db.exec(select(User).where(User.username == username)).first()
+        if user:
+            print(user)
+        else:
+            print(f"User {username} not found")
 
 @cli.command()
 def get_all_users():
-    # The code for task 5.2 goes here. Once implemented, remove the line below that says "pass"
-    pass
+    with get_session() as db:
+        users = db.exec(select(User)).all()
+        for user in users:
+            print(user)
 
 
 @cli.command()
 def change_email(username: str, new_email:str):
-    # The code for task 6 goes here. Once implemented, remove the line below that says "pass"
-    pass
+    with get_session() as db:
+        user = db.exec(select(User).where(User.username == username)).first()
+        if user:
+            user.email = new_email
+            db.commit()
+            print(f"Email updated for {username}")
+        else:
+            print(f"User {username} not found")
 
 @cli.command()
 def create_user(username: str, email:str, password: str):
-    # The code for task 7 goes here. Once implemented, remove the line below that says "pass"
-    pass
+    try:
+        with get_session() as db:
+            new_user = User(username=username, email=email, password=password)
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
+            print(f"User {username} created")
+    except IntegrityError:
+        print(f"User {username} or email {email} already exists")
 
 @cli.command()
 def delete_user(username: str):
-    # The code for task 8 goes here. Once implemented, remove the line below that says "pass"
-    pass
+    with get_session() as db:
+        user = db.exec(select(User).where(User.username == username)).first()
+        if user:
+            db.delete(user)
+            db.commit()
+            print(f"User {username} deleted")
+        else:
+            print(f"User {username} not found")
 
 
 if __name__ == "__main__":
